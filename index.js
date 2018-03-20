@@ -9,13 +9,43 @@ function VuePersistState(prefix, setDefenition) {
 
 
   var settingSetters = {}
-  var wrapSetGet = function(state, value) {
+  var wrapSetGet = function(state, value, definition) {
     var _initValue = value;
     var _state = state;
+    if(definition.type == 'array') {
+      var origin = {
+        push: _initValue.push,
+        pop: _initValue.pop,
+        shift: _initValue.shift,
+        unshift: _initValue.unshift,
+        splice: _initValue.splice,
+      }
+      _initValue.push = function(){
+        origin.push.apply(this, arguments);
+        self.setItem(_state, _initValue);
+      };
+      _initValue.pop = function(){
+        origin.pop.apply(this, arguments);
+        self.setItem(_state, _initValue);
+      };
+      _initValue.shift = function(){
+        origin.shift.apply(this, arguments);
+        self.setItem(_state, _initValue);
+      };
+      _initValue.unshift = function(){
+        origin.unshift.apply(this, arguments);
+        self.setItem(_state, _initValue);
+      };
+      _initValue.splice = function(){
+        origin.splice.apply(this, arguments);
+        self.setItem(_state, _initValue);
+      }; 
+    }
     settingSetters[state] = {
       configurable: true,
       enumerable: true,
       get: function reactiveGet(){
+        console.log(this, _state);
         return _initValue;
       },
       set: function reactiveSet(newVal){
@@ -26,7 +56,7 @@ function VuePersistState(prefix, setDefenition) {
   }
   for (var state in this.setDefenition){
     var storedValue = this.getItem(state);
-    wrapSetGet(state, storedValue);
+    wrapSetGet(state, storedValue, this.setDefenition[state]);
   }
   Object.defineProperties(self.state, settingSetters);
 
