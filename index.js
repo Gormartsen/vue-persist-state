@@ -8,8 +8,7 @@ function VuePersistState(prefix, setDefenition) {
   self.state = {}
 
 
-  var settingSetters = {}
-  var wrapSetGet = function(state, value, definition) {
+  var wrapSetGet = function(state, value, definition, settingSetters) {
     var _initValue = value;
     var _state = state;
     if(definition.type == 'array') {
@@ -41,11 +40,19 @@ function VuePersistState(prefix, setDefenition) {
         self.setItem(_state, _initValue);
       }; 
     }
+    if(definition.type == 'object') {
+      var _originValue = _initValue;
+      _initValue = new Proxy(_initValue,{
+        set: function(obj, prop, value) {
+          obj[prop] = value;
+          self.setItem(_state, obj);
+        }
+      });
+    }
     settingSetters[state] = {
       configurable: true,
       enumerable: true,
       get: function reactiveGet(){
-        console.log(this, _state);
         return _initValue;
       },
       set: function reactiveSet(newVal){
@@ -54,9 +61,11 @@ function VuePersistState(prefix, setDefenition) {
       } 
     }
   }
+  var settingSetters = {}
+ 
   for (var state in this.setDefenition){
     var storedValue = this.getItem(state);
-    wrapSetGet(state, storedValue, this.setDefenition[state]);
+    wrapSetGet(state, storedValue, this.setDefenition[state], settingSetters);
   }
   Object.defineProperties(self.state, settingSetters);
 
