@@ -1,0 +1,19 @@
+{
+  "name": "vue-persist-state",
+  "version": "0.1.0",
+  "description": "Provide global $state that is stored in localStorage or Cookie",
+  "main": "index.js",
+  "scripts": {
+    "cs": "eslint --fix *.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Gormartsen/vue-persist-state.git"
+  },
+  "author": "Gormartsen",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Gormartsen/vue-persist-state/issues"
+  },
+  "homepage": "https://github.com/Gormartsen/vue-persist-state#readme"
+}
