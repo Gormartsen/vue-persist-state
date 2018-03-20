@@ -11,6 +11,7 @@
     "url": "git+https://github.com/Gormartsen/vue-persist-state.git"
   },
   "author": "Gormartsen",
+  "keywords": "vue, state, localstorage, persistent, reactive",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/Gormartsen/vue-persist-state/issues"
