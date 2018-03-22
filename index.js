@@ -42,12 +42,13 @@ function VuePersistState(prefix, setDefenition) {
     }
     if(definition.type == 'object') {
       var _originValue = _initValue;
-      _initValue = new Proxy(_initValue,{
+      self.state[state] = new Proxy(_initValue,{
         set: function(obj, prop, value) {
           obj[prop] = value;
           self.setItem(_state, obj);
         }
       });
+      return;
     }
     settingSetters[state] = {
       configurable: true,
