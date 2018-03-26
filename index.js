@@ -6,70 +6,6 @@ function VuePersistState(prefix, setDefenition) {
   this.isStorage = typeof(Storage) !== "undefined";
   var self = this;
   self.state = {}
-
-
-  var wrapSetGet = function(state, value, definition, settingSetters) {
-    var _initValue = value;
-    var _state = state;
-    if(definition.type == 'array') {
-      var origin = {
-        push: _initValue.push,
-        pop: _initValue.pop,
-        shift: _initValue.shift,
-        unshift: _initValue.unshift,
-        splice: _initValue.splice,
-      }
-      _initValue.push = function(){
-        origin.push.apply(this, arguments);
-        self.setItem(_state, _initValue);
-      };
-      _initValue.pop = function(){
-        origin.pop.apply(this, arguments);
-        self.setItem(_state, _initValue);
-      };
-      _initValue.shift = function(){
-        origin.shift.apply(this, arguments);
-        self.setItem(_state, _initValue);
-      };
-      _initValue.unshift = function(){
-        origin.unshift.apply(this, arguments);
-        self.setItem(_state, _initValue);
-      };
-      _initValue.splice = function(){
-        origin.splice.apply(this, arguments);
-        self.setItem(_state, _initValue);
-      }; 
-    }
-    if(definition.type == 'object') {
-      var _originValue = _initValue;
-      self.state[state] = new Proxy(_initValue,{
-        set: function(obj, prop, value) {
-          obj[prop] = value;
-          self.setItem(_state, obj);
-        }
-      });
-      return;
-    }
-    settingSetters[state] = {
-      configurable: true,
-      enumerable: true,
-      get: function reactiveGet(){
-        return _initValue;
-      },
-      set: function reactiveSet(newVal){
-        self.setItem(_state, newVal);
-        _initValue = newVal;
-      } 
-    }
-  }
-  var settingSetters = {}
- 
-  for (var state in this.setDefenition){
-    var storedValue = this.getItem(state);
-    wrapSetGet(state, storedValue, this.setDefenition[state], settingSetters);
-  }
-  Object.defineProperties(self.state, settingSetters);
-
   if (this.isStorage) {
     try {
       // Test if torage Available
@@ -106,8 +42,10 @@ function VuePersistState(prefix, setDefenition) {
       }, 500);
     }
   }
-
-  return self.state;
+  for (var state in this.setDefenition){
+    self.state[state] = this.getItem(state);
+  }
+  return self;
 }
 
 /**
@@ -259,12 +197,31 @@ VuePersistState.prototype.setItem = function(state, newValue) {
   }
 }
 
+function getWatch(stateStorage, setDefenition) {
+  var watch = {}
+  var setWatcher = function(watch, name, stateStorage){
+    watch[name] = {
+      deep:true, 
+      handler: function(newValue) {
+        stateStorage.setItem(name, newValue);
+      }
+    }
+  };
+  for(var name in stateStorage.state) {
+    if(setDefenition[name]) {
+      setWatcher(watch, name, stateStorage);
+    }
+  }
+  return watch;
+}
+
 function install (Vue, prefix, setDefenition) {
-  var state = new VuePersistState(prefix, setDefenition);
-  Vue.util.defineReactive(this, '$state', state);
+  var stateStorage = new VuePersistState(prefix, setDefenition);
+  Vue.util.defineReactive(this, '$state', stateStorage.state);
   Vue.mixin({
+    watch: getWatch(stateStorage, setDefenition),
     beforeCreate: function beforeCreate () {
-      this.$state = state;
+      this.$state = stateStorage.state;
     },
   });
 }
