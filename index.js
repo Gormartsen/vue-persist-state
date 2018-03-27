@@ -225,14 +225,20 @@ function getWatch(stateStorage, setDefenition) {
 function install (Vue, prefix, setDefenition) {
   var stateStorage = new VuePersistState(prefix, setDefenition);
   Vue.util.defineReactive(this, '$state', stateStorage.state);
-  Vue.mixin({
-    watch: getWatch(stateStorage, setDefenition),
-    beforeCreate: function beforeCreate () {
-      this.$state = stateStorage.state;
-    },
-  });
+  Vue.prototype.$state = stateStorage.state;
+  Vue.prototype._stateWatch = function() {
+    return getWatch(stateStorage, setDefenition)
+  }
 }
 
 VuePersistState.install = install;
 
-module.exports = VuePersistState;
+module.exports = {
+  plugin: VuePersistState,
+  initWatch: function(VueApp) {
+    var watchers = VueApp._stateWatch();
+    for(var name in watchers) {
+      VueApp.$watch(name, watchers[name]);
+    }
+  }
+};
