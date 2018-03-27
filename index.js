@@ -200,15 +200,22 @@ VuePersistState.prototype.setItem = function(state, newValue) {
 function getWatch(stateStorage, setDefenition) {
   var watch = {}
   var setWatcher = function(watch, name, stateStorage){
-    watch[name] = {
-      deep:true, 
-      handler: function(newValue) {
-        stateStorage.setItem(name, newValue);
+    var watchName = '$state.' + name;
+    if (setDefenition[name].type == 'object') {
+      watch[watchName] = {
+        deep:true, 
+        handler: function(newValue) {
+          stateStorage.setItem(name, newValue);
+        }
       }
+      return;
+    }
+    watch[watchName] = function(newValue) {
+      stateStorage.setItem(name, newValue);
     }
   };
-  for(var name in stateStorage.state) {
-    if(setDefenition[name]) {
+  for (var name in stateStorage.state) {
+    if (setDefenition[name]) {
       setWatcher(watch, name, stateStorage);
     }
   }
