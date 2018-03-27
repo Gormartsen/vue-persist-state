@@ -222,23 +222,31 @@ function getWatch(stateStorage, setDefenition) {
   return watch;
 }
 
+var _Vue;
+
 function install (Vue, prefix, setDefenition) {
+  if (install.installed && _Vue === Vue) { return }
+  install.installed = true;
+  _Vue = Vue;
+
   var stateStorage = new VuePersistState(prefix, setDefenition);
   Vue.util.defineReactive(this, '$state', stateStorage.state);
   Vue.prototype.$state = stateStorage.state;
-  Vue.prototype._stateWatch = function() {
-    return getWatch(stateStorage, setDefenition)
-  }
+
+  Vue.mixin({
+    created: function beforeCreate () {
+      if(!_Vue._state) {
+        _Vue._state = true;
+        var watchers = getWatch(stateStorage, setDefenition);
+        for(var name in watchers) {
+          this.$watch(name, watchers[name]);
+        }
+      }
+    }
+  });
 }
 
 VuePersistState.install = install;
 
-module.exports = {
-  plugin: VuePersistState,
-  initWatch: function(VueApp) {
-    var watchers = VueApp._stateWatch();
-    for(var name in watchers) {
-      VueApp.$watch(name, watchers[name]);
-    }
-  }
-};
+module.exports = VuePersistState
+
