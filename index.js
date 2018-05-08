@@ -12,6 +12,9 @@ function VuePersistState(prefix, setDefenition) {
       localStorage.setItem(this.prefix + '-test', true);
       localStorage.removeItem(this.prefix + '-test');
       window.addEventListener('storage', function(e) {
+        if(e.oldValue == e.newValue) {
+          return;
+        }
         var key = e.key.substring(self.prefix.length + 1);
         var newValue = self.convertValue(key, e.newValue);
         self.state[key] = newValue;
