@@ -32,6 +32,14 @@ function VuePersistState(prefix, setDefenition) {
               var origin = JSON.stringify(self.state[state]);
               var newValueHash = JSON.stringify(newValue);
               changed = newValueHash != origin;
+              if(changed) {
+                //add missing origin properties
+                for(var i in self.state[state]) {
+                  if(!newValue[i]) {
+                    newValue[i] = self.state[state][i];
+                  }
+                }
+              }
               break;
             }
             default: {
@@ -46,7 +54,21 @@ function VuePersistState(prefix, setDefenition) {
     }
   }
   for (var state in this.setDefenition){
-    self.state[state] = this.getItem(state);
+    var newValue = self.getItem(state);
+    var definition = self.setDefenition[state];
+    switch (definition.type){
+      case 'array': 
+      case 'object': {
+        for(var i in definition.default) {
+          if(!newValue[i]) {
+            newValue[i] = definition.default[i];
+          }
+        }
+        break;
+      }
+
+    } 
+    self.state[state] = newValue;
   }
   return self;
 }
@@ -252,4 +274,5 @@ function install (Vue, prefix, setDefenition) {
 VuePersistState.install = install;
 
 module.exports = VuePersistState
+
 
