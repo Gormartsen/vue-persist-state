@@ -9,13 +9,19 @@ function VuePersistState(prefix, setDefenition) {
   if (this.isStorage) {
     try {
       // Test if torage Available
-      localStorage.setItem(this.prefix + '-test', true);
-      localStorage.removeItem(this.prefix + '-test');
+      localStorage.setItem(this.prefix + '-testStorage', true);
+      localStorage.removeItem(this.prefix + '-testStorage');
       window.addEventListener('storage', function(e) {
         if(e.oldValue == e.newValue) {
           return;
         }
+        if(e.key.indexOf(self.prefix) !== 0) {
+          return;
+        }
         var key = e.key.substring(self.prefix.length + 1);
+        if(key == "testStorage") {
+          return;
+        }
         var newValue = self.convertValue(key, e.newValue);
         self.state[key] = newValue;
       });

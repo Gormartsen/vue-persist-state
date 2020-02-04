@@ -1,6 +1,6 @@
 {
   "name": "vue-persist-state",
-  "version": "1.0.3",
+  "version": "1.0.5",
   "description": "Provide global $state that is stored in localStorage or Cookie",
   "main": "index.js",
   "scripts": {
