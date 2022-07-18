@@ -4,10 +4,13 @@ Vue.$state that is capable to be watched.
 State is common for all tabs.
 If value changes in one window/tab - it will be updated in others.
 
+`persist:false` variables are available on $state but is not persistent between windows/tabs or page reload.
+
 # usage
 
 ```
-var PersistState = require('vue-persist-state');
+import PersistState from "vue-persist-state";
+
 // Init global this.$state variable
 Vue.use(PersistState, 'myapp-prefix', {
   message: {
@@ -21,6 +24,11 @@ Vue.use(PersistState, 'myapp-prefix', {
   isFirstTime: {
     type: 'boolean',
     default: true,
+  }
+  isPersistVariable: {
+    type: 'boolean',
+    default: true,
+    persist: false,
   }
 });
 
