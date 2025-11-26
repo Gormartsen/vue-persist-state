@@ -243,7 +243,7 @@ function getWatch(stateStorage, setDefenition) {
       return;
     }
     var watchName = "$state." + name;
-    if (setDefenition[name].type == "object") {
+    if (setDefenition[name].type == "object" || setDefenition[name].type == "array") {
       watch[watchName] = {
         deep: true,
         handler: function (newValue) {
